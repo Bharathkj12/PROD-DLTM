@@ -230,7 +230,9 @@ function shareWhatsApp() {
         const coordType = mode === 'gps-to-dltm' ? 'DLTM' : 'UTM';
         message = `Here is the plot location:\n${coordType} Easting: ${easting}\n${coordType} Northing: ${northing}\nGoogle Maps: ${mapsUrl}`;
     } else {
-        message = `Here is the plot location: ${mapsUrl}`;
+        const lat = result1El.textContent;
+        const lng = result2El.textContent;
+        message = `Here is the plot location:\nLatitude: ${lat}\nLongitude: ${lng}\nGoogle Maps: ${mapsUrl}`;
     }
 
     const url = `https://wa.me/?text=${encodeURIComponent(message)}`;
