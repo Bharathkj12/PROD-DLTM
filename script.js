@@ -21,6 +21,7 @@ const resultsEl = document.getElementById('results');
 const errorEl = document.getElementById('error');
 const btnMaps = document.getElementById('btn-maps');
 const btnWhatsApp = document.getElementById('btn-whatsapp');
+const btnShare = document.getElementById('btn-share');
 const utmOptionsEl = document.getElementById('utm-options');
 const utmZoneInput = document.getElementById('utm-zone');
 const utmHemiSelect = document.getElementById('utm-hemi');
@@ -47,6 +48,7 @@ function clearError() {
 function setActionButtons(enabled) {
     btnMaps.disabled = !enabled;
     btnWhatsApp.disabled = !enabled;
+    btnShare.disabled = !enabled;
 }
 
 function resetResults() {
@@ -249,6 +251,33 @@ function copyResult(id) {
         btn.classList.add('copied');
         setTimeout(() => btn.classList.remove('copied'), 1000);
     });
+}
+
+// ── Native Share ──────────────────────────────────────
+function shareNative() {
+    if (currentLat === null || currentLng === null) return;
+    const mapsUrl = `https://www.google.com/maps?q=${currentLat},${currentLng}`;
+
+    let text;
+    if (mode === 'gps-to-dltm' || mode === 'gps-to-utm') {
+        const easting = result1El.textContent;
+        const northing = result2El.textContent;
+        const coordType = mode === 'gps-to-dltm' ? 'DLTM' : 'UTM';
+        text = `Here is the plot location:\n${coordType} Easting: ${easting}\n${coordType} Northing: ${northing}\nGoogle Maps: ${mapsUrl}`;
+    } else {
+        const lat = result1El.textContent;
+        const lng = result2El.textContent;
+        text = `Here is the plot location:\nLatitude: ${lat}\nLongitude: ${lng}\nGoogle Maps: ${mapsUrl}`;
+    }
+
+    if (navigator.share) {
+        navigator.share({ title: 'SmartCoords Location', text: text }).catch(() => { });
+    } else {
+        // Fallback: copy to clipboard
+        navigator.clipboard.writeText(text).then(() => {
+            alert('Link copied to clipboard!');
+        });
+    }
 }
 
 // ── Allow Enter key to trigger conversion ─────────────
