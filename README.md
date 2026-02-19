@@ -3,6 +3,7 @@
 A modern web application to convert DLTM and UTM coordinates to GPS (WGS84) and vice versa. View locations on Google Maps or share via WhatsApp.
 
 ## Features
+> 📖 **[Read the Client Guide](CLIENT_GUIDE.md)** for a detailed walkthrough of all features.
 
 - **Accurate Conversion**: Converts Dubai DLTM Easting and Northing to Latitude and Longitude using the standard projection parameters.
 - **Interactive Actions**:
