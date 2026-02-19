@@ -21,8 +21,17 @@ const resultsEl = document.getElementById('results');
 const errorEl = document.getElementById('error');
 const btnMaps = document.getElementById('btn-maps');
 const btnWhatsApp = document.getElementById('btn-whatsapp');
-const modeBtnDltm = document.getElementById('mode-dltm-to-gps');
-const modeBtnGps = document.getElementById('mode-gps-to-dltm');
+const utmOptionsEl = document.getElementById('utm-options');
+const utmZoneInput = document.getElementById('utm-zone');
+const utmHemiSelect = document.getElementById('utm-hemi');
+
+// Mode buttons
+const modeBtns = {
+    'dltm-to-gps': document.getElementById('mode-dltm-to-gps'),
+    'gps-to-dltm': document.getElementById('mode-gps-to-dltm'),
+    'utm-to-gps': document.getElementById('mode-utm-to-gps'),
+    'gps-to-utm': document.getElementById('mode-gps-to-utm'),
+};
 
 // ── Helpers ───────────────────────────────────────────
 function showError(msg) {
@@ -50,16 +59,36 @@ function resetResults() {
     currentLng = null;
 }
 
+function isUtmMode() {
+    return mode === 'utm-to-gps' || mode === 'gps-to-utm';
+}
+
+function getUtmProj() {
+    const zone = parseInt(utmZoneInput.value, 10);
+    const hemi = utmHemiSelect.value;
+    if (isNaN(zone) || zone < 1 || zone > 60) return null;
+    const south = hemi === 'south' ? ' +south' : '';
+    return `+proj=utm +zone=${zone}${south} +datum=WGS84 +units=m +no_defs`;
+}
+
 // ── Mode Switching ────────────────────────────────────
 function setMode(newMode) {
     if (mode === newMode) return;
     mode = newMode;
 
     // Toggle active button
-    modeBtnDltm.classList.toggle('active', mode === 'dltm-to-gps');
-    modeBtnGps.classList.toggle('active', mode === 'gps-to-dltm');
+    Object.entries(modeBtns).forEach(([key, btn]) => {
+        btn.classList.toggle('active', key === mode);
+    });
 
-    // Swap labels, placeholders
+    // Show/hide UTM options
+    if (isUtmMode()) {
+        utmOptionsEl.classList.add('visible');
+    } else {
+        utmOptionsEl.classList.remove('visible');
+    }
+
+    // Swap labels and placeholders
     if (mode === 'dltm-to-gps') {
         label1.textContent = 'Easting (X)';
         label2.textContent = 'Northing (Y)';
@@ -67,7 +96,21 @@ function setMode(newMode) {
         input2.placeholder = '2780000';
         resultLabel1.textContent = 'Latitude';
         resultLabel2.textContent = 'Longitude';
-    } else {
+    } else if (mode === 'gps-to-dltm') {
+        label1.textContent = 'Latitude';
+        label2.textContent = 'Longitude';
+        input1.placeholder = '25.2048';
+        input2.placeholder = '55.2708';
+        resultLabel1.textContent = 'Easting (X)';
+        resultLabel2.textContent = 'Northing (Y)';
+    } else if (mode === 'utm-to-gps') {
+        label1.textContent = 'Easting (X)';
+        label2.textContent = 'Northing (Y)';
+        input1.placeholder = '326000';
+        input2.placeholder = '2790000';
+        resultLabel1.textContent = 'Latitude';
+        resultLabel2.textContent = 'Longitude';
+    } else if (mode === 'gps-to-utm') {
         label1.textContent = 'Latitude';
         label2.textContent = 'Longitude';
         input1.placeholder = '25.2048';
@@ -97,11 +140,9 @@ function convert() {
         return;
     }
 
-    // Parse as floats
     const val1 = parseFloat(raw1);
     const val2 = parseFloat(raw2);
 
-    // Validate numbers
     if (isNaN(val1) || isNaN(val2)) {
         showError('Coordinates must be valid numbers.');
         resultsEl.classList.remove('visible');
@@ -111,24 +152,50 @@ function convert() {
 
     try {
         if (mode === 'dltm-to-gps') {
-            // Easting/Northing must be positive
             if (val1 < 0 || val2 < 0) {
                 showError('Easting and Northing must be positive values.');
                 resultsEl.classList.remove('visible');
                 setActionButtons(false);
                 return;
             }
-
-            // proj4 returns [longitude, latitude]
             const [lng, lat] = proj4(DUBAI_DLTM, WGS84, [val1, val2]);
             currentLat = lat;
             currentLng = lng;
             result1El.textContent = lat.toFixed(8);
             result2El.textContent = lng.toFixed(8);
-        } else {
-            // GPS → DLTM: val1 = latitude, val2 = longitude
-            // proj4 expects [longitude, latitude]
+
+        } else if (mode === 'gps-to-dltm') {
             const [easting, northing] = proj4(WGS84, DUBAI_DLTM, [val2, val1]);
+            currentLat = val1;
+            currentLng = val2;
+            result1El.textContent = easting.toFixed(4);
+            result2El.textContent = northing.toFixed(4);
+
+        } else if (mode === 'utm-to-gps') {
+            const utmProj = getUtmProj();
+            if (!utmProj) {
+                showError('Please enter a valid UTM zone (1–60).');
+                return;
+            }
+            if (val1 < 0 || val2 < 0) {
+                showError('Easting and Northing must be positive values.');
+                resultsEl.classList.remove('visible');
+                setActionButtons(false);
+                return;
+            }
+            const [lng, lat] = proj4(utmProj, WGS84, [val1, val2]);
+            currentLat = lat;
+            currentLng = lng;
+            result1El.textContent = lat.toFixed(8);
+            result2El.textContent = lng.toFixed(8);
+
+        } else if (mode === 'gps-to-utm') {
+            const utmProj = getUtmProj();
+            if (!utmProj) {
+                showError('Please enter a valid UTM zone (1–60).');
+                return;
+            }
+            const [easting, northing] = proj4(WGS84, utmProj, [val2, val1]);
             currentLat = val1;
             currentLng = val2;
             result1El.textContent = easting.toFixed(4);

@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.0] - 2026-02-19
+### Added
+- **UTM ↔ GPS Conversion**: Added UTM to GPS and GPS to UTM conversion modes with zone (1–60) and hemisphere (N/S) selection.
+- **4-Mode Toggle**: Expanded the mode selector to a 2×2 grid with DLTM→GPS, GPS→DLTM, UTM→GPS, and GPS→UTM.
+
+---
+
 ## [1.1.0] - 2026-02-19
 ### Added
 - **Bidirectional Conversion**: Added a toggle bar to switch between **DLTM → GPS** and **GPS → DLTM** conversion modes.
