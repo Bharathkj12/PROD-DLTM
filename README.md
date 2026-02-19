@@ -1,6 +1,6 @@
-# Dubai DLTM Navigator
+# SmartCoords
 
-A simple, modern web application to convert Dubai Local Transverse Mercator (DLTM) coordinates to standard GPS coordinates (WGS84) and interact with them using Google Maps and WhatsApp.
+A modern web application to convert DLTM and UTM coordinates to GPS (WGS84) and vice versa. View locations on Google Maps or share via WhatsApp.
 
 ## Features
 
