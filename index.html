@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dubai DLTM Navigator</title>
+  <meta name="description" content="Convert Dubai DLTM coordinates to GPS and open in Google Maps or share via WhatsApp." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <div class="card" id="app-card">
+    <!-- Header -->
+    <div class="header">
+      <div class="header-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+          <circle cx="12" cy="10" r="3"/>
+        </svg>
+      </div>
+      <h1>Dubai DLTM Navigator</h1>
+      <p class="subtitle">Convert DLTM coordinates to GPS</p>
+    </div>
+
+    <!-- Inputs -->
+    <div class="input-group">
+      <label for="easting">Easting (X)</label>
+      <input type="number" id="easting" placeholder="500000" inputmode="decimal" />
+    </div>
+    <div class="input-group">
+      <label for="northing">Northing (Y)</label>
+      <input type="number" id="northing" placeholder="2780000" inputmode="decimal" />
+    </div>
+
+    <!-- Convert Button -->
+    <button class="btn btn-convert" id="btn-convert" onclick="convert()">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/>
+        <polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/>
+      </svg>
+      Convert Coordinates
+    </button>
+
+    <!-- Results -->
+    <div class="results" id="results">
+      <div class="result-row">
+        <span class="result-label">Latitude</span>
+        <span class="result-value" id="lat">—</span>
+      </div>
+      <div class="result-row">
+        <span class="result-label">Longitude</span>
+        <span class="result-value" id="lng">—</span>
+      </div>
+    </div>
+
+    <!-- Error -->
+    <div class="error" id="error"></div>
+
+    <!-- Action Buttons -->
+    <div class="actions" id="actions">
+      <button class="btn btn-maps" id="btn-maps" onclick="openGoogleMaps()" disabled>
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="3 11 22 2 13 21 11 13 3 11"/>
+        </svg>
+        Open in Google Maps
+      </button>
+      <button class="btn btn-whatsapp" id="btn-whatsapp" onclick="shareWhatsApp()" disabled>
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+        </svg>
+        Share on WhatsApp
+      </button>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      Created by Bharath KJ | Powered by ARAR UTILITY
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.9.0/proj4.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
