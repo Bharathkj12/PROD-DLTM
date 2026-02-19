@@ -26,14 +26,20 @@
       <p class="subtitle">Convert DLTM coordinates to GPS</p>
     </div>
 
+    <!-- Mode Toggle -->
+    <div class="mode-toggle">
+      <button class="mode-btn active" id="mode-dltm-to-gps" onclick="setMode('dltm-to-gps')">DLTM → GPS</button>
+      <button class="mode-btn" id="mode-gps-to-dltm" onclick="setMode('gps-to-dltm')">GPS → DLTM</button>
+    </div>
+
     <!-- Inputs -->
     <div class="input-group">
-      <label for="easting">Easting (X)</label>
-      <input type="number" id="easting" placeholder="500000" inputmode="decimal" />
+      <label for="input1" id="label1">Easting (X)</label>
+      <input type="number" id="input1" placeholder="500000" inputmode="decimal" />
     </div>
     <div class="input-group">
-      <label for="northing">Northing (Y)</label>
-      <input type="number" id="northing" placeholder="2780000" inputmode="decimal" />
+      <label for="input2" id="label2">Northing (Y)</label>
+      <input type="number" id="input2" placeholder="2780000" inputmode="decimal" />
     </div>
 
     <!-- Convert Button -->
@@ -49,12 +55,12 @@
     <!-- Results -->
     <div class="results" id="results">
       <div class="result-row">
-        <span class="result-label">Latitude</span>
-        <span class="result-value" id="lat">—</span>
+        <span class="result-label" id="result-label1">Latitude</span>
+        <span class="result-value" id="result1">—</span>
       </div>
       <div class="result-row">
-        <span class="result-label">Longitude</span>
-        <span class="result-value" id="lng">—</span>
+        <span class="result-label" id="result-label2">Longitude</span>
+        <span class="result-value" id="result2">—</span>
       </div>
     </div>
 
