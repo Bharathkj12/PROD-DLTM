@@ -336,6 +336,43 @@ body {
   color: var(--text-primary);
 }
 
+.result-value-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.copy-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.copy-btn:hover {
+  background: rgba(124, 92, 252, 0.2);
+  border-color: var(--accent-convert);
+  color: var(--text-primary);
+}
+
+.copy-btn:active {
+  transform: scale(0.9);
+}
+
+.copy-btn.copied {
+  background: rgba(37, 211, 102, 0.2);
+  border-color: var(--accent-green);
+  color: var(--accent-green);
+}
+
 /* ── Error ───────────────────────────────────────────── */
 .error {
   text-align: center;

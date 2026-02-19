@@ -239,6 +239,18 @@ function shareWhatsApp() {
     window.open(url, '_blank');
 }
 
+// ── Copy to Clipboard ─────────────────────────────────
+function copyResult(id) {
+    const el = document.getElementById(id);
+    const text = el.textContent;
+    if (!text || text === '—') return;
+    navigator.clipboard.writeText(text).then(() => {
+        const btn = el.closest('.result-value-wrapper').querySelector('.copy-btn');
+        btn.classList.add('copied');
+        setTimeout(() => btn.classList.remove('copied'), 1000);
+    });
+}
+
 // ── Allow Enter key to trigger conversion ─────────────
 input1.addEventListener('keydown', (e) => { if (e.key === 'Enter') convert(); });
 input2.addEventListener('keydown', (e) => { if (e.key === 'Enter') convert(); });
