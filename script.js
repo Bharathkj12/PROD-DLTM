@@ -222,7 +222,17 @@ function openGoogleMaps() {
 function shareWhatsApp() {
     if (currentLat === null || currentLng === null) return;
     const mapsUrl = `https://www.google.com/maps?q=${currentLat},${currentLng}`;
-    const message = `Here is the plot location: ${mapsUrl}`;
+
+    let message;
+    if (mode === 'gps-to-dltm' || mode === 'gps-to-utm') {
+        const easting = result1El.textContent;
+        const northing = result2El.textContent;
+        const coordType = mode === 'gps-to-dltm' ? 'DLTM' : 'UTM';
+        message = `Here is the plot location:\n${coordType} Easting: ${easting}\n${coordType} Northing: ${northing}\nGoogle Maps: ${mapsUrl}`;
+    } else {
+        message = `Here is the plot location: ${mapsUrl}`;
+    }
+
     const url = `https://wa.me/?text=${encodeURIComponent(message)}`;
     window.open(url, '_blank');
 }
