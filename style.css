@@ -402,6 +402,10 @@ body {
   letter-spacing: 2px;
 }
 
+.btn-gps-lock.hidden {
+  display: none !important;
+}
+
 .btn-gps-lock:hover:not(:disabled) {
   background: rgba(37, 211, 102, 0.1);
 }

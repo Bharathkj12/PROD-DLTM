@@ -147,9 +147,9 @@ function setMode(newMode) {
     // Show/hide GPS Lock button (only in Lat/Lon input modes)
     const btnGpsLock = document.getElementById('btn-gps-lock');
     if (mode === 'gps-to-dltm' || mode === 'gps-to-utm') {
-        btnGpsLock.style.display = 'flex';
+        btnGpsLock.classList.remove('hidden');
     } else {
-        btnGpsLock.style.display = 'none';
+        btnGpsLock.classList.add('hidden');
     }
 }
 
