@@ -143,6 +143,14 @@ function setMode(newMode) {
     input1.value = '';
     input2.value = '';
     resetResults();
+
+    // Show/hide GPS Lock button (only in Lat/Lon input modes)
+    const btnGpsLock = document.getElementById('btn-gps-lock');
+    if (mode === 'gps-to-dltm' || mode === 'gps-to-utm') {
+        btnGpsLock.style.display = 'flex';
+    } else {
+        btnGpsLock.style.display = 'none';
+    }
 }
 
 // ── Convert ───────────────────────────────────────────
@@ -229,6 +237,87 @@ function convert() {
         resultsEl.classList.remove('visible');
         setActionButtons(false);
     }
+}
+
+// ── GPS Lock (Get My Location) ────────────────────────
+function gpsLock() {
+    if (!navigator.geolocation) {
+        showError('Geolocation not supported by your browser.');
+        return;
+    }
+
+    const btnGpsLock = document.getElementById('btn-gps-lock');
+    const gpsLockText = document.getElementById('gps-lock-text');
+
+    // Enter acquiring state
+    btnGpsLock.classList.add('acquiring');
+    btnGpsLock.disabled = true;
+    gpsLockText.textContent = 'ACQUIRING...';
+    setSystemStatus('calc');
+
+    // Start number scramble animation on both inputs
+    const scrambleInterval1 = startScramble(input1, 6);
+    const scrambleInterval2 = startScramble(input2, 7);
+
+    navigator.geolocation.getCurrentPosition(
+        (position) => {
+            const lat = position.coords.latitude;
+            const lon = position.coords.longitude;
+
+            // Let scramble run for a bit, then lock
+            setTimeout(() => {
+                clearInterval(scrambleInterval1);
+                clearInterval(scrambleInterval2);
+
+                // Final lock-in animation
+                lockInValue(input1, lat.toFixed(8));
+                lockInValue(input2, lon.toFixed(8));
+
+                // Reset button state
+                btnGpsLock.classList.remove('acquiring');
+                btnGpsLock.disabled = false;
+                gpsLockText.textContent = 'LOCKED \u2713';
+                setSystemStatus('online');
+
+                setTimeout(() => {
+                    gpsLockText.textContent = 'GPS LOCK';
+                }, 2000);
+            }, 500);
+        },
+        (err) => {
+            clearInterval(scrambleInterval1);
+            clearInterval(scrambleInterval2);
+            input1.value = '';
+            input2.value = '';
+            btnGpsLock.classList.remove('acquiring');
+            btnGpsLock.disabled = false;
+            gpsLockText.textContent = 'GPS LOCK';
+            showError('GPS lock failed: ' + err.message);
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+    );
+}
+
+function startScramble(inputEl, digits) {
+    return setInterval(() => {
+        let scrambled = '';
+        for (let i = 0; i < digits; i++) {
+            scrambled += Math.floor(Math.random() * 10);
+            if (i === 1) scrambled += '.';
+        }
+        inputEl.value = scrambled;
+    }, 40);
+}
+
+function lockInValue(inputEl, finalValue) {
+    inputEl.value = finalValue;
+    // Brief visual flash effect
+    inputEl.style.borderColor = 'var(--accent-green)';
+    inputEl.style.boxShadow = '0 0 8px rgba(37, 211, 102, 0.4)';
+    setTimeout(() => {
+        inputEl.style.borderColor = '';
+        inputEl.style.boxShadow = '';
+    }, 600);
 }
 
 // ── Google Maps ───────────────────────────────────────
@@ -432,6 +521,13 @@ function copyHistoryRow(idx) {
     });
 }
 
+function copyCoordCell(cell, text) {
+    copyToClipboard(text).then(() => {
+        cell.classList.add('copied');
+        setTimeout(() => cell.classList.remove('copied'), 800);
+    });
+}
+
 function renderHistory() {
     const entries = getHistory();
     historyCountEl.textContent = `${entries.length} / ${MAX_HISTORY}`;
@@ -449,8 +545,8 @@ function renderHistory() {
         <tr>
             <td>${String(i + 1).padStart(2, '0')}</td>
             <td><span class="history-mode">${e.mode}</span></td>
-            <td><span class="history-coords">${e.input}</span></td>
-            <td><span class="history-coords">${e.output}</span></td>
+            <td class="history-cell-copy" onclick="copyCoordCell(this, '${e.input}')" title="Tap to copy"><span class="history-coords">${e.input}</span></td>
+            <td class="history-cell-copy" onclick="copyCoordCell(this, '${e.output}')" title="Tap to copy"><span class="history-coords">${e.output}</span></td>
             <td>
                 <button class="history-row-copy" data-history-copy="${i}" onclick="copyHistoryRow(${i})" title="Copy row">
                     <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"

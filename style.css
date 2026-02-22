@@ -392,6 +392,58 @@ body {
   box-shadow: var(--shadow-hard-sm);
 }
 
+/* GPS Lock */
+.btn-gps-lock {
+  background: transparent;
+  border-color: var(--accent-green);
+  color: var(--accent-green);
+  margin-bottom: 12px;
+  font-size: 0.75rem;
+  letter-spacing: 2px;
+}
+
+.btn-gps-lock:hover:not(:disabled) {
+  background: rgba(37, 211, 102, 0.1);
+}
+
+.btn-gps-lock svg {
+  stroke: var(--accent-green);
+}
+
+.btn-gps-lock.acquiring {
+  border-color: var(--gold);
+  color: var(--gold);
+  animation: gps-scan 0.6s ease infinite;
+}
+
+.btn-gps-lock.acquiring svg {
+  stroke: var(--gold);
+  animation: spin-crosshair 1s linear infinite;
+}
+
+@keyframes spin-crosshair {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes gps-scan {
+
+  0%,
+  100% {
+    border-color: var(--gold);
+  }
+
+  50% {
+    border-color: var(--gold-hover);
+    box-shadow: 0 0 12px rgba(201, 168, 76, 0.3);
+  }
+}
+
 /* Convert */
 .btn-convert {
   background: var(--gold);
@@ -734,6 +786,31 @@ body {
 .history-row-copy.copied {
   background: rgba(37, 211, 102, 0.15);
   border-color: var(--accent-green);
+  color: var(--accent-green);
+}
+
+.history-cell-copy {
+  cursor: pointer;
+  position: relative;
+  transition: all var(--transition);
+}
+
+.history-cell-copy:hover .history-coords {
+  text-decoration: underline;
+  text-decoration-style: dashed;
+  text-underline-offset: 3px;
+  color: var(--gold);
+}
+
+.history-cell-copy:active {
+  transform: scale(0.97);
+}
+
+.history-cell-copy.copied {
+  background: rgba(37, 211, 102, 0.12);
+}
+
+.history-cell-copy.copied .history-coords {
   color: var(--accent-green);
 }
 
