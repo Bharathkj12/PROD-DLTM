@@ -25,6 +25,22 @@ const btnShare = document.getElementById('btn-share');
 const utmOptionsEl = document.getElementById('utm-options');
 const utmZoneInput = document.getElementById('utm-zone');
 const utmHemiSelect = document.getElementById('utm-hemi');
+const sysStatus = document.getElementById('sys-status');
+const sysStatusDot = sysStatus.querySelector('.status-dot');
+const sysStatusText = document.getElementById('status-text');
+
+function setSystemStatus(state) {
+    if (!sysStatus || !sysStatusDot || !sysStatusText) return;
+    sysStatus.className = 'sys-status ' + state;
+    sysStatusDot.className = 'status-dot ' + state;
+    if (state === 'online') {
+        sysStatusText.textContent = 'SYS.ONLINE';
+    } else if (state === 'calc') {
+        sysStatusText.textContent = 'CALCULATING...';
+    } else if (state === 'error') {
+        sysStatusText.textContent = 'SYS.ERROR';
+    }
+}
 
 // Mode buttons
 const modeBtns = {
@@ -38,6 +54,7 @@ const modeBtns = {
 function showError(msg) {
     errorEl.textContent = msg;
     errorEl.classList.add('visible');
+    setSystemStatus('error');
 }
 
 function clearError() {
@@ -59,6 +76,7 @@ function resetResults() {
     clearError();
     currentLat = null;
     currentLng = null;
+    setSystemStatus('online');
 }
 
 function isUtmMode() {
@@ -452,19 +470,26 @@ renderHistory();
 // ── Hook into convert() to log history ────────────────
 const _originalConvert = convert;
 convert = function () {
-    _originalConvert();
+    setSystemStatus('calc');
 
-    // Only log if conversion was successful (results visible)
-    if (!resultsEl.classList.contains('visible')) return;
+    // Tiny delay to ensure the 'calc' pulse animation renders
+    setTimeout(() => {
+        _originalConvert();
 
-    const modeLabels = {
-        'dltm-to-gps': 'DLTM→GPS',
-        'gps-to-dltm': 'GPS→DLTM',
-        'utm-to-gps': 'UTM→GPS',
-        'gps-to-utm': 'GPS→UTM',
-    };
+        // Only log if conversion was successful (results visible)
+        if (!resultsEl.classList.contains('visible')) return;
 
-    const inputText = `${input1.value}, ${input2.value}`;
-    const outputText = `${result1El.textContent}, ${result2El.textContent}`;
-    addHistoryEntry(modeLabels[mode] || mode, inputText, outputText);
-};
+        setSystemStatus('online');
+
+        const modeLabels = {
+            'dltm-to-gps': 'DLTM→Lat/Lon',
+            'gps-to-dltm': 'Lat/Lon→DLTM',
+            'utm-to-gps': 'UTM→Lat/Lon',
+            'gps-to-utm': 'Lat/Lon→UTM',
+        };
+
+        const inputText = `${input1.value}, ${input2.value}`;
+        const outputText = `${result1El.textContent}, ${result2El.textContent}`;
+        addHistoryEntry(modeLabels[mode] || mode, inputText, outputText);
+    }, 400);
+}

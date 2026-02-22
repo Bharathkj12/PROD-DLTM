@@ -26,6 +26,12 @@
       </div>
       <h1>SmartCoords</h1>
       <p class="subtitle">High-Fidelity Coordinate Converter</p>
+
+      <!-- System Status Indicator -->
+      <div class="sys-status" id="sys-status">
+        <span class="status-dot online"></span>
+        <span class="status-text" id="status-text">SYS.ONLINE</span>
+      </div>
       <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
         <svg id="icon-sun" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -48,10 +54,10 @@
 
     <!-- Mode Toggle -->
     <div class="mode-toggle">
-      <button class="mode-btn active" id="mode-dltm-to-gps" onclick="setMode('dltm-to-gps')">DLTM → GPS</button>
-      <button class="mode-btn" id="mode-gps-to-dltm" onclick="setMode('gps-to-dltm')">GPS → DLTM</button>
-      <button class="mode-btn" id="mode-utm-to-gps" onclick="setMode('utm-to-gps')">UTM → GPS</button>
-      <button class="mode-btn" id="mode-gps-to-utm" onclick="setMode('gps-to-utm')">GPS → UTM</button>
+      <button class="mode-btn active" id="mode-dltm-to-gps" onclick="setMode('dltm-to-gps')">DLTM → Lat/Lon</button>
+      <button class="mode-btn" id="mode-gps-to-dltm" onclick="setMode('gps-to-dltm')">Lat/Lon → DLTM</button>
+      <button class="mode-btn" id="mode-utm-to-gps" onclick="setMode('utm-to-gps')">UTM → Lat/Lon</button>
+      <button class="mode-btn" id="mode-gps-to-utm" onclick="setMode('gps-to-utm')">Lat/Lon → UTM</button>
     </div>
 
     <!-- UTM Options (shown only in UTM modes) -->
