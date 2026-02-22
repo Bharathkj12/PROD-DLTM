@@ -252,7 +252,7 @@ function gpsLock() {
     // Enter acquiring state
     btnGpsLock.classList.add('acquiring');
     btnGpsLock.disabled = true;
-    gpsLockText.textContent = 'ACQUIRING...';
+    gpsLockText.textContent = 'PLOTTING...';
     setSystemStatus('calc');
 
     // Start number scramble animation on both inputs
@@ -276,11 +276,11 @@ function gpsLock() {
                 // Reset button state
                 btnGpsLock.classList.remove('acquiring');
                 btnGpsLock.disabled = false;
-                gpsLockText.textContent = 'LOCKED \u2713';
+                gpsLockText.textContent = 'PLOTTED \u2713';
                 setSystemStatus('online');
 
                 setTimeout(() => {
-                    gpsLockText.textContent = 'GPS LOCK';
+                    gpsLockText.textContent = 'PLOT MY LOCATION';
                 }, 2000);
             }, 500);
         },
@@ -291,7 +291,7 @@ function gpsLock() {
             input2.value = '';
             btnGpsLock.classList.remove('acquiring');
             btnGpsLock.disabled = false;
-            gpsLockText.textContent = 'GPS LOCK';
+            gpsLockText.textContent = 'PLOT MY LOCATION';
             showError('GPS lock failed: ' + err.message);
         },
         { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
