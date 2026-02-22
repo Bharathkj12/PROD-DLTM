@@ -242,11 +242,36 @@ function shareWhatsApp() {
 }
 
 // ── Copy to Clipboard ─────────────────────────────────
+function copyToClipboard(text) {
+    // Try modern Clipboard API first
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        return navigator.clipboard.writeText(text).catch(() => fallbackCopy(text));
+    }
+    // Fallback for file:// or non-HTTPS contexts
+    return fallbackCopy(text);
+}
+
+function fallbackCopy(text) {
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.style.position = 'fixed';
+    textarea.style.opacity = '0';
+    document.body.appendChild(textarea);
+    textarea.select();
+    try {
+        document.execCommand('copy');
+    } catch (e) {
+        // silent fail
+    }
+    document.body.removeChild(textarea);
+    return Promise.resolve();
+}
+
 function copyResult(id) {
     const el = document.getElementById(id);
     const text = el.textContent;
     if (!text || text === '—') return;
-    navigator.clipboard.writeText(text).then(() => {
+    copyToClipboard(text).then(() => {
         const btn = el.closest('.result-value-wrapper').querySelector('.copy-btn');
         btn.classList.add('copied');
         setTimeout(() => btn.classList.remove('copied'), 1000);
@@ -274,7 +299,7 @@ function shareNative() {
         navigator.share({ title: 'SmartCoords Location', text: text }).catch(() => { });
     } else {
         // Fallback: copy to clipboard
-        navigator.clipboard.writeText(text).then(() => {
+        copyToClipboard(text).then(() => {
             alert('Link copied to clipboard!');
         });
     }
@@ -283,3 +308,61 @@ function shareNative() {
 // ── Allow Enter key to trigger conversion ─────────────
 input1.addEventListener('keydown', (e) => { if (e.key === 'Enter') convert(); });
 input2.addEventListener('keydown', (e) => { if (e.key === 'Enter') convert(); });
+
+// ── Theme Toggle ──────────────────────────────────────
+const iconSun = document.getElementById('icon-sun');
+const iconMoon = document.getElementById('icon-moon');
+const themeColorMeta = document.querySelector('meta[name="theme-color"]');
+
+function applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    document.body.setAttribute('data-theme', theme);
+    if (theme === 'light') {
+        iconSun.style.display = 'none';
+        iconMoon.style.display = 'block';
+        if (themeColorMeta) themeColorMeta.content = '#F0EDE6';
+    } else {
+        iconSun.style.display = 'block';
+        iconMoon.style.display = 'none';
+        if (themeColorMeta) themeColorMeta.content = '#0A0A0A';
+    }
+}
+
+function toggleTheme() {
+    const current = document.documentElement.getAttribute('data-theme') || 'dark';
+    const next = current === 'dark' ? 'light' : 'dark';
+    applyTheme(next);
+    localStorage.setItem('smartcoords-theme', next);
+}
+
+// Initialize theme from localStorage
+(function initTheme() {
+    const saved = localStorage.getItem('smartcoords-theme') || 'dark';
+    applyTheme(saved);
+})();
+
+// ── Session-Based Visitor Count (JSON/sessionStorage) ─
+(function initVisitorCount() {
+    const STORAGE_KEY = 'smartcoords-session';
+    let sessionData;
+
+    try {
+        sessionData = JSON.parse(sessionStorage.getItem(STORAGE_KEY));
+    } catch (e) {
+        sessionData = null;
+    }
+
+    if (!sessionData || typeof sessionData.visits !== 'number') {
+        sessionData = { visits: 1, startedAt: new Date().toISOString() };
+    } else {
+        sessionData.visits += 1;
+        sessionData.lastVisitAt = new Date().toISOString();
+    }
+
+    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(sessionData));
+
+    const el = document.getElementById('visitor-count');
+    if (el) {
+        el.textContent = `SESSION: ${sessionData.visits}`;
+    }
+})();
