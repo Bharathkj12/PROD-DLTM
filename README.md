@@ -1,38 +1,66 @@
 # SmartCoords
 
-A modern web application to convert DLTM and UTM coordinates to GPS (WGS84) and vice versa. View locations on Google Maps or share via WhatsApp.
+**SmartCoords** is a high-fidelity, production-grade coordinate conversion utility designed for surveying professionals. Built with a focus on mathematical precision and an unapologetic "Cartographic Brutalism / Industrial Utility" aesthetic, it provides fast, reliable conversions between global standard formats and localized metric grids.
 
-## Features
-> 📖 **[Read the Client Guide](CLIENT_GUIDE.md)** for a detailed walkthrough of all features.
+## 🎯 Core Features
 
-- **Accurate Conversion**: Converts Dubai DLTM Easting and Northing to Latitude and Longitude using the standard projection parameters.
-- **Interactive Actions**:
-    - **Open in Google Maps**: View the converted location directly on Google Maps.
-    - **Share via WhatsApp**: Share the location coordinates with others easily.
-- **Modern UI**: Dark-themed, responsive design that works well on desktop and mobile devices.
-- **Instant Validation**: Provides immediate feedback on invalid inputs.
+### 1. Multi-Directional Conversion
+Perform mathematically robust transformations utilizing `proj4js`:
+- **DLTM ↔ Lat/Lon** (Dubai Local Transverse Mercator to WGS84 Geodetic)
+- **UTM ↔ Lat/Lon** (Universal Transverse Mercator to WGS84 Geodetic)
+- *Includes dynamic input fields for UTM Zone and Hemisphere selection.*
 
-## Getting Started
+### 2. "Plot My Location" (GPS Lock)
+A tactical, field-ready feature that utilizes device geolocation (`navigator.geolocation`) to instantly pull your current coordinates into the input fields. Includes a satellite-lock visualization with rapid number scrambling and green lock-in pulses.
 
-### Prerequisites
+### 3. Session Manifest (History Log)
+A terminal-style, persistent session history table that logs your last 10 conversions. 
+- **Tap-to-Copy:** Click on any Input or Output coordinate in the log to instantly copy it to your clipboard.
+- **Row Copy:** Copy the entire conversion string in one click.
+- Clears automatically when the browser session ends, or via the manual clear button.
 
-You need a modern web browser (Chrome, Firefox, Safari, Edge) to run this application. No server installation is required as it runs entirely in the browser.
+### 4. Interactive Data Sharing
+- **Open in Google Maps**: Instantly plot the converted coordinates to verify visually.
+- **WhatsApp Integration**: Generates a pre-formatted message containing both Grid & Lat/Lon coordinates along with a Google Maps link for rapid field-to-office communication.
+- **Native OS Share**: Triggers the device's native share sheet.
 
-### Installation & Usage
+### 5. Brutalist Luxury UI
+An uncompromising design language utilizing deep contrasts, monospace typography (`JetBrains Mono`), bold grid structures, and micro-animations to mimic physical, military-grade hardware. 
+- Fully responsive mobile-first architecture.
+- Built-in Dark/Light theme toggling securely persisted via `localStorage`.
+- Live `SYS.ONLINE` / `CALCULATING...` state indicator dot.
 
-1.  Clone the repository or download the source code.
-2.  Open the `index.html` file in your web browser.
-3.  Enter the **Easting (X)** and **Northing (Y)** coordinates in the input fields.
-4.  Click **Convert Coordinates**.
-5.  Use the buttons to view the location on Google Maps or share it via WhatsApp.
+## 🛠 Tech Stack
 
-## Technologies Used
+- **HTML5 & Vanilla CSS3**: No CSS frameworks. Custom, localized design system using CSS variables.
+- **Vanilla JavaScript (ES6)**: Zero-dependency DOM manipulation and state management.
+- **Proj4js**: The industry standard projection library for pure mathematical coordinate geometry.
 
--   **HTML5 / CSS3 / JavaScript**
--   **Projection Library**: [proj4js](https://github.com/proj4js/proj4js) (v2.9.0)
--   **Fonts**: Inter (via Google Fonts)
--   **Icons**: SVG Icons
+## 🚀 Running Locally
 
-## Credits
+Because SmartCoords uses geolocation and clipboard APIs, it must be served over HTTP rather than opening the file directly (to prevent CORS/Security context issues).
 
-Created by **Bharath KJ** | Powered by **ARAR UTILITY**
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/Bharathkj12/PROD-DLTM.git
+   cd PROD-DLTM
+   ```
+
+2. **Serve the directory:**
+   If you have Python installed:
+   ```bash
+   python3 -m http.server 8080
+   ```
+   Or using Node.js/npm:
+   ```bash
+   npx serve .
+   ```
+
+3. **Open in browser:**
+   Navigate to `http://localhost:8080` (or the port provided by your server).
+
+## 🤝 Contributing
+Updates and pulls should be made against the `staging` branch. The `main` branch acts as the production-ready source of truth.
+
+---
+*Created by Bharath KJ | Powered By ARAR Utility*
