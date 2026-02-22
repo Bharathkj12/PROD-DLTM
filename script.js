@@ -366,3 +366,105 @@ function toggleTheme() {
         el.textContent = `SESSION: ${sessionData.visits}`;
     }
 })();
+
+// ── Conversion History (The Manifest) ─────────────────
+const HISTORY_KEY = 'smartcoords-history';
+const MAX_HISTORY = 10;
+const historyTbody = document.getElementById('history-tbody');
+const historyEmpty = document.getElementById('history-empty');
+const historyTableWrapper = document.getElementById('history-table-wrapper');
+const historyCountEl = document.getElementById('history-count');
+
+function getHistory() {
+    try {
+        return JSON.parse(sessionStorage.getItem(HISTORY_KEY)) || [];
+    } catch (e) {
+        return [];
+    }
+}
+
+function saveHistory(entries) {
+    sessionStorage.setItem(HISTORY_KEY, JSON.stringify(entries));
+}
+
+function addHistoryEntry(modeLabel, inputText, outputText) {
+    const entries = getHistory();
+    entries.unshift({ mode: modeLabel, input: inputText, output: outputText, ts: Date.now() });
+    if (entries.length > MAX_HISTORY) entries.length = MAX_HISTORY;
+    saveHistory(entries);
+    renderHistory();
+}
+
+function clearHistory() {
+    sessionStorage.removeItem(HISTORY_KEY);
+    renderHistory();
+}
+
+function copyHistoryRow(idx) {
+    const entries = getHistory();
+    if (!entries[idx]) return;
+    const e = entries[idx];
+    const text = `${e.mode} | IN: ${e.input} | OUT: ${e.output}`;
+    copyToClipboard(text).then(() => {
+        const btn = document.querySelector(`[data-history-copy="${idx}"]`);
+        if (btn) {
+            btn.classList.add('copied');
+            setTimeout(() => btn.classList.remove('copied'), 1000);
+        }
+    });
+}
+
+function renderHistory() {
+    const entries = getHistory();
+    historyCountEl.textContent = `${entries.length} / ${MAX_HISTORY}`;
+
+    if (entries.length === 0) {
+        historyTableWrapper.style.display = 'none';
+        historyEmpty.style.display = 'block';
+        return;
+    }
+
+    historyTableWrapper.style.display = 'block';
+    historyEmpty.style.display = 'none';
+
+    historyTbody.innerHTML = entries.map((e, i) => `
+        <tr>
+            <td>${String(i + 1).padStart(2, '0')}</td>
+            <td><span class="history-mode">${e.mode}</span></td>
+            <td><span class="history-coords">${e.input}</span></td>
+            <td><span class="history-coords">${e.output}</span></td>
+            <td>
+                <button class="history-row-copy" data-history-copy="${i}" onclick="copyHistoryRow(${i})" title="Copy row">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                    </svg>
+                </button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+// Initialize history on load
+renderHistory();
+
+// ── Hook into convert() to log history ────────────────
+const _originalConvert = convert;
+convert = function () {
+    _originalConvert();
+
+    // Only log if conversion was successful (results visible)
+    if (!resultsEl.classList.contains('visible')) return;
+
+    const modeLabels = {
+        'dltm-to-gps': 'DLTM→GPS',
+        'gps-to-dltm': 'GPS→DLTM',
+        'utm-to-gps': 'UTM→GPS',
+        'gps-to-utm': 'GPS→UTM',
+    };
+
+    const inputText = `${input1.value}, ${input2.value}`;
+    const outputText = `${result1El.textContent}, ${result2El.textContent}`;
+    addHistoryEntry(modeLabels[mode] || mode, inputText, outputText);
+};
