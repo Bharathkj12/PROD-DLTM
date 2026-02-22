@@ -329,7 +329,7 @@ function applyTheme(theme) {
 }
 
 function toggleTheme() {
-    const current = document.documentElement.getAttribute('data-theme') || 'dark';
+    const current = document.documentElement.getAttribute('data-theme') || 'light';
     const next = current === 'dark' ? 'light' : 'dark';
     applyTheme(next);
     localStorage.setItem('smartcoords-theme', next);
@@ -337,7 +337,7 @@ function toggleTheme() {
 
 // Initialize theme from localStorage
 (function initTheme() {
-    const saved = localStorage.getItem('smartcoords-theme') || 'dark';
+    const saved = localStorage.getItem('smartcoords-theme') || 'light';
     applyTheme(saved);
 })();
 
