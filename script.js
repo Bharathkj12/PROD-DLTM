@@ -450,27 +450,33 @@ function toggleTheme() {
 
 // ── Session-Based Visitor Count (JSON/sessionStorage) ─
 (function initVisitorCount() {
-    const STORAGE_KEY = 'smartcoords-session';
-    let sessionData;
+    const STORAGE_KEY = 'smartcoords-visits';
+    const SESSION_FLAG = 'smartcoords-session-active';
+    let visitData;
 
     try {
-        sessionData = JSON.parse(sessionStorage.getItem(STORAGE_KEY));
+        visitData = JSON.parse(localStorage.getItem(STORAGE_KEY));
     } catch (e) {
-        sessionData = null;
+        visitData = null;
     }
 
-    if (!sessionData || typeof sessionData.visits !== 'number') {
-        sessionData = { visits: 1, startedAt: new Date().toISOString() };
+    if (!visitData || typeof visitData.visits !== 'number') {
+        visitData = { visits: 1, startedAt: new Date().toISOString() };
     } else {
-        sessionData.visits += 1;
-        sessionData.lastVisitAt = new Date().toISOString();
+        // Only increment if this is a new session
+        if (!sessionStorage.getItem(SESSION_FLAG)) {
+            visitData.visits += 1;
+            visitData.lastVisitAt = new Date().toISOString();
+        }
     }
 
-    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(sessionData));
+    // Persist count to localStorage, mark session as active
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(visitData));
+    sessionStorage.setItem(SESSION_FLAG, 'true');
 
     const el = document.getElementById('visitor-count');
     if (el) {
-        el.textContent = `SESSION: ${sessionData.visits}`;
+        el.textContent = `SESSION: ${visitData.visits}`;
     }
 })();
 
