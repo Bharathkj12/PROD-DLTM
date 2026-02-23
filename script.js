@@ -541,12 +541,22 @@ function renderHistory() {
     historyTableWrapper.style.display = 'block';
     historyEmpty.style.display = 'none';
 
+    const escapeHTML = (str) => String(str).replace(/[&<>'"]/g,
+        tag => ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            "'": '&#39;',
+            '"': '&quot;'
+        }[tag] || tag)
+    );
+
     historyTbody.innerHTML = entries.map((e, i) => `
         <tr>
             <td>${String(i + 1).padStart(2, '0')}</td>
             <td><span class="history-mode">${e.mode}</span></td>
-            <td class="history-cell-copy" onclick="copyCoordCell(this, '${e.input}')" title="Tap to copy"><span class="history-coords">${e.input}</span></td>
-            <td class="history-cell-copy" onclick="copyCoordCell(this, '${e.output}')" title="Tap to copy"><span class="history-coords">${e.output}</span></td>
+            <td class="history-cell-copy" data-val="${escapeHTML(e.input)}" onclick="copyCoordCell(this, this.getAttribute('data-val'))" title="Tap to copy"><span class="history-coords">${escapeHTML(e.input)}</span></td>
+            <td class="history-cell-copy" data-val="${escapeHTML(e.output)}" onclick="copyCoordCell(this, this.getAttribute('data-val'))" title="Tap to copy"><span class="history-coords">${escapeHTML(e.output)}</span></td>
             <td>
                 <button class="history-row-copy" data-history-copy="${i}" onclick="copyHistoryRow(${i})" title="Copy row">
                     <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
