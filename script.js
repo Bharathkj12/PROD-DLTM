@@ -84,9 +84,9 @@ function isUtmMode() {
 }
 
 function getUtmProj() {
-    const zone = parseInt(utmZoneInput.value, 10);
+    const zone = Number.parseInt(utmZoneInput.value, 10);
     const hemi = utmHemiSelect.value;
-    if (isNaN(zone) || zone < 1 || zone > 60) return null;
+    if (Number.isNaN(zone) || zone < 1 || zone > 60) return null;
     const south = hemi === 'south' ? ' +south' : '';
     return `+proj=utm +zone=${zone}${south} +datum=WGS84 +units=m +no_defs`;
 }
@@ -154,10 +154,10 @@ function convert() {
         return;
     }
 
-    const val1 = parseFloat(raw1);
-    const val2 = parseFloat(raw2);
+    const val1 = Number.parseFloat(raw1);
+    const val2 = Number.parseFloat(raw2);
 
-    if (isNaN(val1) || isNaN(val2)) {
+    if (Number.isNaN(val1) || Number.isNaN(val2)) {
         showError('Coordinates must be valid numbers.');
         resultsEl.classList.remove('visible');
         setActionButtons(false);
@@ -219,6 +219,7 @@ function convert() {
         resultsEl.classList.add('visible');
         setActionButtons(true);
     } catch (err) {
+        console.error("Conversion error:", err);
         showError('Conversion failed. Check your coordinates.');
         resultsEl.classList.remove('visible');
         setActionButtons(false);
@@ -389,7 +390,7 @@ function shareNative() {
     }
 
     if (navigator.share) {
-        navigator.share({ title: 'SmartCoords Location', text: text }).catch(() => { });
+        navigator.share({ title: 'SmartCoords Location', text: text }).catch((err) => { console.warn("Share failed:", err); });
     } else {
         // Fallback: copy to clipboard
         copyToClipboard(text).then(() => {
