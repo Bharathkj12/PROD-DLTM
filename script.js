@@ -109,28 +109,14 @@ function setMode(newMode) {
     }
 
     // Swap labels and placeholders
-    if (mode === 'dltm-to-gps') {
+    if (mode === 'dltm-to-gps' || mode === 'utm-to-gps') {
         label1.textContent = 'Easting (X)';
         label2.textContent = 'Northing (Y)';
-        input1.placeholder = '500000';
-        input2.placeholder = '2780000';
+        input1.placeholder = mode === 'dltm-to-gps' ? '500000' : '326000';
+        input2.placeholder = mode === 'dltm-to-gps' ? '2780000' : '2790000';
         resultLabel1.textContent = 'Latitude';
         resultLabel2.textContent = 'Longitude';
-    } else if (mode === 'gps-to-dltm') {
-        label1.textContent = 'Latitude';
-        label2.textContent = 'Longitude';
-        input1.placeholder = '25.2048';
-        input2.placeholder = '55.2708';
-        resultLabel1.textContent = 'Easting (X)';
-        resultLabel2.textContent = 'Northing (Y)';
-    } else if (mode === 'utm-to-gps') {
-        label1.textContent = 'Easting (X)';
-        label2.textContent = 'Northing (Y)';
-        input1.placeholder = '326000';
-        input2.placeholder = '2790000';
-        resultLabel1.textContent = 'Latitude';
-        resultLabel2.textContent = 'Longitude';
-    } else if (mode === 'gps-to-utm') {
+    } else if (mode === 'gps-to-dltm' || mode === 'gps-to-utm') {
         label1.textContent = 'Latitude';
         label2.textContent = 'Longitude';
         input1.placeholder = '25.2048';
@@ -351,7 +337,7 @@ function shareWhatsApp() {
 // ── Copy to Clipboard ─────────────────────────────────
 function copyToClipboard(text) {
     // Try modern Clipboard API first
-    if (navigator.clipboard && navigator.clipboard.writeText) {
+    if (navigator.clipboard?.writeText) {
         return navigator.clipboard.writeText(text).catch(() => fallbackCopy(text));
     }
     // Fallback for file:// or non-HTTPS contexts
@@ -370,7 +356,7 @@ function fallbackCopy(text) {
     } catch (e) {
         // silent fail
     }
-    document.body.removeChild(textarea);
+    textarea.remove();
     return Promise.resolve();
 }
 
@@ -422,8 +408,8 @@ const iconMoon = document.getElementById('icon-moon');
 const themeColorMeta = document.querySelector('meta[name="theme-color"]');
 
 function applyTheme(theme) {
-    document.documentElement.setAttribute('data-theme', theme);
-    document.body.setAttribute('data-theme', theme);
+    document.documentElement.dataset.theme = theme;
+    document.body.dataset.theme = theme;
     if (theme === 'light') {
         iconSun.style.display = 'none';
         iconMoon.style.display = 'block';
@@ -436,7 +422,7 @@ function applyTheme(theme) {
 }
 
 function toggleTheme() {
-    const current = document.documentElement.getAttribute('data-theme') || 'light';
+    const current = document.documentElement.dataset.theme || 'light';
     const next = current === 'dark' ? 'light' : 'dark';
     applyTheme(next);
     localStorage.setItem('smartcoords-theme', next);
