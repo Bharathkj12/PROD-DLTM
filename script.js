@@ -355,7 +355,7 @@ function fallbackCopy(text) {
     try {
         document.execCommand('copy');
     } catch (e) {
-        // silent fail
+        console.warn('Fallback copy failed', e);
     }
     textarea.remove();
     return Promise.resolve();
@@ -444,17 +444,16 @@ function toggleTheme() {
     try {
         visitData = JSON.parse(localStorage.getItem(STORAGE_KEY));
     } catch (e) {
+        console.warn("Failed to parse visit data:", e);
         visitData = null;
     }
 
     if (!visitData || typeof visitData.visits !== 'number') {
         visitData = { visits: 1, startedAt: new Date().toISOString() };
-    } else {
+    } else if (!sessionStorage.getItem(SESSION_FLAG)) {
         // Only increment if this is a new session
-        if (!sessionStorage.getItem(SESSION_FLAG)) {
-            visitData.visits += 1;
-            visitData.lastVisitAt = new Date().toISOString();
-        }
+        visitData.visits += 1;
+        visitData.lastVisitAt = new Date().toISOString();
     }
 
     // Persist count to localStorage, mark session as active
@@ -479,6 +478,7 @@ function getHistory() {
     try {
         return JSON.parse(sessionStorage.getItem(HISTORY_KEY)) || [];
     } catch (e) {
+        console.warn("Failed to parse history data:", e);
         return [];
     }
 }
@@ -534,7 +534,7 @@ function renderHistory() {
     historyTableWrapper.style.display = 'block';
     historyEmpty.style.display = 'none';
 
-    const escapeHTML = (str) => String(str).replace(/[&<>'"]/g,
+    const escapeHTML = (str) => String(str).replaceAll(/[&<>'"]/g,
         tag => ({
             '&': '&amp;',
             '<': '&lt;',
