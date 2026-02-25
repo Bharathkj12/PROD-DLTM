@@ -337,28 +337,10 @@ function shareWhatsApp() {
 
 // ── Copy to Clipboard ─────────────────────────────────
 function copyToClipboard(text) {
-    // Try modern Clipboard API first
     if (navigator.clipboard?.writeText) {
-        return navigator.clipboard.writeText(text).catch(() => fallbackCopy(text));
+        return navigator.clipboard.writeText(text);
     }
-    // Fallback for file:// or non-HTTPS contexts
-    return fallbackCopy(text);
-}
-
-function fallbackCopy(text) {
-    const textarea = document.createElement('textarea');
-    textarea.value = text;
-    textarea.style.position = 'fixed';
-    textarea.style.opacity = '0';
-    document.body.appendChild(textarea);
-    textarea.select();
-    try {
-        document.execCommand('copy');
-    } catch (e) {
-        console.warn('Fallback copy failed', e);
-    }
-    textarea.remove();
-    return Promise.resolve();
+    return Promise.reject(new Error("Clipboard API not available"));
 }
 
 function copyResult(id) {
