@@ -289,7 +289,9 @@ function startScramble(inputEl, digits) {
     return setInterval(() => {
         let scrambled = '';
         for (let i = 0; i < digits; i++) {
-            scrambled += Math.floor(Math.random() * 10);
+            const arr = new Uint8Array(1);
+            crypto.getRandomValues(arr);
+            scrambled += arr[0] % 10;
             if (i === 1) scrambled += '.';
         }
         inputEl.value = scrambled;
