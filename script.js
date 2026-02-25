@@ -512,6 +512,7 @@ function renderHistory() {
     if (entries.length === 0) {
         historyTableWrapper.style.display = 'none';
         historyEmpty.style.display = 'block';
+        historyTbody.innerHTML = '';
         return;
     }
 
