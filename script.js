@@ -109,28 +109,14 @@ function setMode(newMode) {
     }
 
     // Swap labels and placeholders
-    if (mode === 'dltm-to-gps') {
+    if (mode === 'dltm-to-gps' || mode === 'utm-to-gps') {
         label1.textContent = 'Easting (X)';
         label2.textContent = 'Northing (Y)';
-        input1.placeholder = '500000';
-        input2.placeholder = '2780000';
+        input1.placeholder = mode === 'dltm-to-gps' ? '500000' : '326000';
+        input2.placeholder = mode === 'dltm-to-gps' ? '2780000' : '2790000';
         resultLabel1.textContent = 'Latitude';
         resultLabel2.textContent = 'Longitude';
-    } else if (mode === 'gps-to-dltm') {
-        label1.textContent = 'Latitude';
-        label2.textContent = 'Longitude';
-        input1.placeholder = '25.2048';
-        input2.placeholder = '55.2708';
-        resultLabel1.textContent = 'Easting (X)';
-        resultLabel2.textContent = 'Northing (Y)';
-    } else if (mode === 'utm-to-gps') {
-        label1.textContent = 'Easting (X)';
-        label2.textContent = 'Northing (Y)';
-        input1.placeholder = '326000';
-        input2.placeholder = '2790000';
-        resultLabel1.textContent = 'Latitude';
-        resultLabel2.textContent = 'Longitude';
-    } else if (mode === 'gps-to-utm') {
+    } else if (mode === 'gps-to-dltm' || mode === 'gps-to-utm') {
         label1.textContent = 'Latitude';
         label2.textContent = 'Longitude';
         input1.placeholder = '25.2048';
@@ -351,7 +337,7 @@ function shareWhatsApp() {
 // ── Copy to Clipboard ─────────────────────────────────
 function copyToClipboard(text) {
     // Try modern Clipboard API first
-    if (navigator.clipboard && navigator.clipboard.writeText) {
+    if (navigator.clipboard?.writeText) {
         return navigator.clipboard.writeText(text).catch(() => fallbackCopy(text));
     }
     // Fallback for file:// or non-HTTPS contexts
@@ -370,7 +356,7 @@ function fallbackCopy(text) {
     } catch (e) {
         // silent fail
     }
-    document.body.removeChild(textarea);
+    textarea.remove();
     return Promise.resolve();
 }
 
@@ -422,8 +408,8 @@ const iconMoon = document.getElementById('icon-moon');
 const themeColorMeta = document.querySelector('meta[name="theme-color"]');
 
 function applyTheme(theme) {
-    document.documentElement.setAttribute('data-theme', theme);
-    document.body.setAttribute('data-theme', theme);
+    document.documentElement.dataset.theme = theme;
+    document.body.dataset.theme = theme;
     if (theme === 'light') {
         iconSun.style.display = 'none';
         iconMoon.style.display = 'block';
@@ -436,7 +422,7 @@ function applyTheme(theme) {
 }
 
 function toggleTheme() {
-    const current = document.documentElement.getAttribute('data-theme') || 'light';
+    const current = document.documentElement.dataset.theme || 'light';
     const next = current === 'dark' ? 'light' : 'dark';
     applyTheme(next);
     localStorage.setItem('smartcoords-theme', next);
@@ -450,27 +436,33 @@ function toggleTheme() {
 
 // ── Session-Based Visitor Count (JSON/sessionStorage) ─
 (function initVisitorCount() {
-    const STORAGE_KEY = 'smartcoords-session';
-    let sessionData;
+    const STORAGE_KEY = 'smartcoords-visits';
+    const SESSION_FLAG = 'smartcoords-session-active';
+    let visitData;
 
     try {
-        sessionData = JSON.parse(sessionStorage.getItem(STORAGE_KEY));
+        visitData = JSON.parse(localStorage.getItem(STORAGE_KEY));
     } catch (e) {
-        sessionData = null;
+        visitData = null;
     }
 
-    if (!sessionData || typeof sessionData.visits !== 'number') {
-        sessionData = { visits: 1, startedAt: new Date().toISOString() };
+    if (!visitData || typeof visitData.visits !== 'number') {
+        visitData = { visits: 1, startedAt: new Date().toISOString() };
     } else {
-        sessionData.visits += 1;
-        sessionData.lastVisitAt = new Date().toISOString();
+        // Only increment if this is a new session
+        if (!sessionStorage.getItem(SESSION_FLAG)) {
+            visitData.visits += 1;
+            visitData.lastVisitAt = new Date().toISOString();
+        }
     }
 
-    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(sessionData));
+    // Persist count to localStorage, mark session as active
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(visitData));
+    sessionStorage.setItem(SESSION_FLAG, 'true');
 
     const el = document.getElementById('visitor-count');
     if (el) {
-        el.textContent = `SESSION: ${sessionData.visits}`;
+        el.textContent = `SESSION: ${visitData.visits}`;
     }
 })();
 
@@ -541,12 +533,22 @@ function renderHistory() {
     historyTableWrapper.style.display = 'block';
     historyEmpty.style.display = 'none';
 
+    const escapeHTML = (str) => String(str).replace(/[&<>'"]/g,
+        tag => ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            "'": '&#39;',
+            '"': '&quot;'
+        }[tag] || tag)
+    );
+
     historyTbody.innerHTML = entries.map((e, i) => `
         <tr>
             <td>${String(i + 1).padStart(2, '0')}</td>
             <td><span class="history-mode">${e.mode}</span></td>
-            <td class="history-cell-copy" onclick="copyCoordCell(this, '${e.input}')" title="Tap to copy"><span class="history-coords">${e.input}</span></td>
-            <td class="history-cell-copy" onclick="copyCoordCell(this, '${e.output}')" title="Tap to copy"><span class="history-coords">${e.output}</span></td>
+            <td class="history-cell-copy" data-val="${escapeHTML(e.input)}" onclick="copyCoordCell(this, this.getAttribute('data-val'))" title="Tap to copy"><span class="history-coords">${escapeHTML(e.input)}</span></td>
+            <td class="history-cell-copy" data-val="${escapeHTML(e.output)}" onclick="copyCoordCell(this, this.getAttribute('data-val'))" title="Tap to copy"><span class="history-coords">${escapeHTML(e.output)}</span></td>
             <td>
                 <button class="history-row-copy" data-history-copy="${i}" onclick="copyHistoryRow(${i})" title="Copy row">
                     <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
